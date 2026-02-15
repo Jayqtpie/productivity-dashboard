@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist
+unlock-codes.txt
 dist-ssr
 *.local
 

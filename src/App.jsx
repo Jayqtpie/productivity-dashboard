@@ -16,7 +16,6 @@ const SECRET_KEY = 'barakah2026dashboard';
 
 const MASTER_HASHES = [
   '76ffbe2730348eec0ba3aacabdd2b14158f443a5468cf376d0ddd35e332b9210',
-  'b76b0a1d0976807bc1fe02870a5f8acad8374559beae9c4a5d3c25478026a54d',
   '9f7f59b3148a3773f519e1388465712f5c7c800d362f85ee55f91b9f06c0380c',
 ];
 
@@ -212,10 +211,9 @@ export default function App() {
 
   if (!ready) return <Loader />;
 
-  // TODO: Re-enable unlock before production
-  // if (!unlocked) {
-  //   return <UnlockScreen onUnlock={() => setUnlocked(true)} />;
-  // }
+  if (!unlocked) {
+    return <UnlockScreen onUnlock={() => setUnlocked(true)} />;
+  }
 
   return (
     <BrowserRouter>
