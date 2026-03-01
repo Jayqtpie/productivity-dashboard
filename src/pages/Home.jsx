@@ -19,6 +19,13 @@ function getDayIndex(dateStr) {
   return Math.floor((d - start) / (1000 * 60 * 60 * 24));
 }
 
+function getTimeGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good Morning';
+  if (hour < 17) return 'Good Afternoon';
+  return 'Good Evening';
+}
+
 const HOW_TO_STEPS = [
   { n: 1, title: 'Set Your Intention', desc: 'Start each day by writing your niyyah on the Daily page.' },
   { n: 2, title: 'Track Your Salah', desc: 'Log each prayer as on-time or late, and rate your khushu.' },
@@ -129,33 +136,29 @@ export default function Home() {
   }, [today]);
 
   const isNewUser = dataLoaded && daysLogged === 0;
+  const isEarlyUser = dataLoaded && daysLogged > 0 && daysLogged <= 3;
 
   return (
-    <div>
-      {/* Hero Header */}
-      <div className="geo-pattern py-10" style={{ background: 'var(--primary)' }}>
-        <div className="max-w-2xl mx-auto px-4 text-center">
-          <img src={logo} alt="GuidedBarakah" className="w-10 h-10 mx-auto mb-3 object-contain" />
-          <p className="spaced-caps mb-1" style={{ color: 'var(--accent)' }}>Productivity Dashboard</p>
-          {isNewUser ? (
-            <>
-              <h1 className="text-xl font-extrabold text-white mb-0.5">Welcome</h1>
-              <p className="text-sm text-white/60 font-medium">by GuidedBarakah</p>
-            </>
-          ) : (
-            <>
-              <h1 className="text-xl font-extrabold text-white mb-0.5">Assalamu Alaikum</h1>
-              <p className="text-sm text-white/60 font-medium">{todayReadable}</p>
-            </>
-          )}
-          <p className="text-xs text-white/40 italic leading-relaxed max-w-xs mx-auto mt-2">
-            {getSectionVerse('home')}
-          </p>
-        </div>
+    <div className="animate-fade-in">
+      {/* Hero Header — rounded bottom, logo below text */}
+      <div className="geo-pattern rounded-b-3xl px-5 py-10 text-center text-white" style={{ background: 'var(--primary)' }}>
+        <p className="spaced-caps mb-2" style={{ color: 'var(--accent)' }}>Productivity Dashboard</p>
+        {isNewUser ? (
+          <>
+            <h1 className="text-3xl font-extrabold mb-1">Welcome</h1>
+            <p className="text-white/70 text-sm">by GuidedBarakah</p>
+          </>
+        ) : (
+          <>
+            <h1 className="text-3xl font-extrabold mb-1">Assalamu Alaikum</h1>
+            <p className="text-white/70 text-sm">{getTimeGreeting()} — {todayReadable}</p>
+          </>
+        )}
+        <img src={logo} alt="GuidedBarakah" className="w-20 h-20 mx-auto mt-4 object-contain" />
       </div>
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-4 py-5 space-y-4">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
 
         {!stats ? (
           <div className="flex items-center justify-center h-40">
@@ -163,15 +166,73 @@ export default function Home() {
           </div>
         ) : (
           <>
-            {/* How to Use (collapsible) */}
-            <div className="card animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
+            {/* Location Prompt — shown early (before content) */}
+            {locationLoaded && !location && (
+              <div className="card animate-fade-in-up">
+                <div className="card-body text-center">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2" style={{ background: 'rgba(201,168,76,0.15)' }}>
+                    <MapPin size={20} style={{ color: 'var(--accent)' }} />
+                  </div>
+                  <p className="text-sm font-bold mb-1" style={{ color: 'var(--primary)' }}>Auto-fill Prayer Times</p>
+                  <p className="text-xs text-[var(--muted)] leading-relaxed mb-3">
+                    Enable location to see prayer times next to your salah tracker on the daily page.
+                  </p>
+                  <button
+                    onClick={handleEnableLocation}
+                    disabled={locationLoading}
+                    className="w-full py-2.5 rounded-xl font-bold text-sm text-white disabled:opacity-60"
+                    style={{ background: 'var(--accent)' }}
+                  >
+                    {locationLoading ? 'Getting location...' : 'Enable Prayer Times'}
+                  </button>
+                  <p className="text-[0.6rem] text-[var(--muted)] mt-2 leading-relaxed">
+                    Prayer times are based on your general location and may not be completely accurate. Please verify with your local masjid.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Welcome Letter — only for new/early users */}
+            {(isNewUser || isEarlyUser) && (
+              <div className="animate-fade-in-up card card-body" style={{ animationDelay: '0.05s' }}>
+                <p className="text-[var(--body)] leading-relaxed mb-4">
+                  <span className="font-bold text-[var(--primary)]">Assalamu alaikum,</span>
+                </p>
+                <p className="text-sm leading-relaxed text-[var(--body)]">
+                  If you're using this dashboard, it means you're serious about building a life of purpose and productivity. You're not just planning your days — you're planning to grow.
+                </p>
+                <p className="text-sm leading-relaxed text-[var(--body)] mt-3">
+                  This dashboard was designed to give you structure without rigidity, accountability without guilt, and a system that works with your faith — not against it. Every page is built around the rhythms of your day: the five daily prayers that anchor your schedule, the habits that compound over time, and the reflections that keep you aligned with your purpose.
+                </p>
+              </div>
+            )}
+
+            {/* Progress indicator — returning users */}
+            {!isNewUser && (
+              <div className="animate-fade-in-up card card-body" style={{ animationDelay: '0.05s' }}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-bold" style={{ color: 'var(--primary)' }}>Your Journey</span>
+                  <span className="text-xs text-[var(--muted)]">{daysLogged} {daysLogged === 1 ? 'day' : 'days'} logged</span>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-bar-fill"
+                    style={{ width: `${Math.min(100, Math.round((daysLogged / 30) * 100))}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* How to Use — section bar style with icon */}
+            <div className="card animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
               <button
                 onClick={() => setHowToOpen(!howToOpen)}
                 className="section-bar section-bar-primary w-full justify-between cursor-pointer border-none text-left"
                 type="button"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">How to Use This Dashboard</span>
+                  <span>✸</span>
+                  <span>HOW TO USE THIS DASHBOARD</span>
                 </div>
                 <ChevronDown
                   size={18}
@@ -199,34 +260,11 @@ export default function Home() {
               )}
             </div>
 
-            {/* New User CTAs */}
-            {isNewUser && (
-              <div className="animate-fade-in-up space-y-2" style={{ animationDelay: '0.08s' }}>
-                <p className="text-xs text-center text-[var(--muted)] italic mb-3">
-                  Start by setting your intention for today -- everything flows from niyyah.
-                </p>
-                <button
-                  onClick={() => navigate(`/daily/${today}`)}
-                  className="w-full py-3 rounded-xl font-bold text-sm text-white"
-                  style={{ background: 'var(--accent)' }}
-                >
-                  Start Today's Plan
-                </button>
-                <button
-                  onClick={() => navigate('/reflect/goals')}
-                  className="w-full py-3 rounded-xl font-bold text-sm border-2"
-                  style={{ borderColor: 'var(--primary)', color: 'var(--primary)', background: 'transparent' }}
-                >
-                  Set My Goals
-                </button>
-              </div>
-            )}
-
             {/* Returning User: Stats + Quick Actions */}
             {!isNewUser && (
               <>
                 {/* Streak & Quick Stats */}
-                <div className="grid grid-cols-2 gap-3 animate-fade-in-up" style={{ animationDelay: '0.08s' }}>
+                <div className="grid grid-cols-2 gap-3 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
                   <div className="card">
                     <div className="card-body text-center py-4">
                       <Flame size={22} className="mx-auto mb-1" style={{ color: 'var(--accent)' }} />
@@ -243,7 +281,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                <div className="grid grid-cols-3 gap-3 animate-fade-in-up" style={{ animationDelay: '0.18s' }}>
                   <div className="card">
                     <div className="card-body text-center py-3">
                       <CheckSquare size={18} className="mx-auto mb-1" style={{ color: 'var(--secondary)' }} />
@@ -268,7 +306,7 @@ export default function Home() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="space-y-2.5 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+                <div className="space-y-2.5 animate-fade-in-up" style={{ animationDelay: '0.22s' }}>
                   <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted)' }}>Quick Actions</h2>
 
                   <button
@@ -333,42 +371,54 @@ export default function Home() {
               </>
             )}
 
-            {/* Location Prompt */}
-            {locationLoaded && !location && (
-              <div className="card animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <div className="card-body text-center">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2" style={{ background: 'rgba(201,168,76,0.15)' }}>
-                    <MapPin size={20} style={{ color: 'var(--accent)' }} />
-                  </div>
-                  <p className="text-sm font-bold mb-1" style={{ color: 'var(--primary)' }}>Auto-fill Prayer Times</p>
-                  <p className="text-xs text-[var(--muted)] leading-relaxed mb-3">
-                    Enable location to see prayer times next to your salah tracker on the daily page.
+            {/* Daily Hadith */}
+            <div className="hadith-block animate-fade-in-up" style={{ animationDelay: '0.28s' }}>
+              <p className="text-sm leading-relaxed mb-2" style={{ color: 'var(--body)' }}>
+                &ldquo;{hadith.text}&rdquo;
+              </p>
+              <p className="text-xs font-semibold" style={{ color: 'var(--accent)' }}>
+                — {hadith.source}
+              </p>
+            </div>
+
+            {/* Bismillah motivational line */}
+            <p className="text-center text-[var(--accent)] font-bold text-lg animate-fade-in-up" style={{ animationDelay: '0.33s' }}>
+              Let's begin. Bismillah.
+            </p>
+
+            {/* Bottom CTAs */}
+            <div className="flex flex-col gap-3 animate-fade-in-up" style={{ animationDelay: '0.36s' }}>
+              {isNewUser ? (
+                <>
+                  <p className="text-xs text-center text-[var(--muted)] italic">
+                    Start by setting your intention for today — everything flows from niyyah.
                   </p>
                   <button
-                    onClick={handleEnableLocation}
-                    disabled={locationLoading}
-                    className="w-full py-2.5 rounded-xl font-bold text-sm text-white disabled:opacity-60"
+                    onClick={() => navigate(`/daily/${today}`)}
+                    className="w-full py-3 rounded-xl font-bold text-sm text-white"
                     style={{ background: 'var(--accent)' }}
                   >
-                    {locationLoading ? 'Getting location...' : 'Enable Prayer Times'}
+                    Start Today's Plan
                   </button>
-                  <p className="text-[0.6rem] text-[var(--muted)] mt-2 leading-relaxed">
-                    Prayer times are based on your general location and may not be completely accurate. Please verify with your local masjid.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Daily Hadith */}
-            <div className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
-              <div className="hadith-block">
-                <p className="text-sm leading-relaxed mb-2" style={{ color: 'var(--body)' }}>
-                  &ldquo;{hadith.text}&rdquo;
-                </p>
-                <p className="text-xs font-semibold" style={{ color: 'var(--accent)' }}>
-                  — {hadith.source}
-                </p>
-              </div>
+                  <button
+                    onClick={() => navigate('/reflect/goals')}
+                    className="w-full py-3 rounded-xl font-bold text-sm border-2"
+                    style={{ borderColor: 'var(--primary)', color: 'var(--primary)', background: 'transparent' }}
+                  >
+                    Set My Goals
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate(`/daily/${today}`)}
+                    className="w-full py-3 rounded-xl font-bold text-white text-sm"
+                    style={{ background: 'var(--primary)' }}
+                  >
+                    Go to Today's Page
+                  </button>
+                </>
+              )}
             </div>
           </>
         )}
