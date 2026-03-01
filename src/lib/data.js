@@ -1,16 +1,17 @@
-// 10 Sunnah-inspired habits for the weekly grid
+// 11 Sunnah-inspired habits for the weekly grid
+// Ordered: salah → Quran/dhikr → weekly worship → character → lifestyle
 export const HABITS = [
   { id: 'fajr', label: 'Pray Fajr on time' },
+  { id: 'tahajjud', label: 'Pray Tahajjud' },
   { id: 'quran', label: 'Read Quran daily' },
   { id: 'adhkar', label: 'Morning & evening adhkar' },
-  { id: 'charity', label: 'Give charity (sadaqah)' },
-  { id: 'fasting', label: 'Voluntary fasting (Mon/Thu)' },
   { id: 'dhikr', label: 'Dhikr after salah' },
   { id: 'dua', label: 'Make dua before sleep' },
+  { id: 'fasting', label: 'Voluntary fasting (Mon/Thu)' },
+  { id: 'charity', label: 'Give sadaqah' },
+  { id: 'kindness', label: 'Act of kindness' },
   { id: 'knowledge', label: 'Seek Islamic knowledge' },
-  { id: 'kindness', label: 'Act of kindness / good deed' },
   { id: 'sleep', label: 'Sleep early, wake for Fajr' },
-  { id: 'tahajjud', label: 'Prayed Tahajjud' },
 ];
 
 export const DAYS_OF_WEEK = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
