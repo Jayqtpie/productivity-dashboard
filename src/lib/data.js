@@ -184,6 +184,19 @@ export function getDefaultDailyPage(date) {
       maghrib: { tasks: '' },
       isha: { tasks: '' },
     },
+    gratitude: ['', '', ''],
+    topPriorities: ['', '', ''],
+    goodDeeds: {
+      sadaqah: false,
+      helpedSomeone: false,
+      extraDhikr: false,
+      learnedIslamic: false,
+      duaForOthers: false,
+      custom: false,
+    },
+    customDeed: '',
+    waterIntake: 0,
+    notes: '',
   };
 }
 
@@ -244,3 +257,68 @@ export function formatReadableDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
+
+// Progressive muhasabah: beginner prompts for first 2 weeks, intermediate for weeks 3-6, advanced after
+const MUHASABAH_BEGINNER = [
+  'Did I pray all five salah today?',
+  'Did I read any Quran today, even one ayah?',
+  'Was I kind to someone today?',
+  'Did I make dua today?',
+  'What is one thing I am grateful for today?',
+  'Did I avoid wasting time today?',
+  'Did I speak only good words?',
+  'Did I remember Allah at any point during my day?',
+  'Was I patient when something didn\'t go my way?',
+  'Did I try to do one good deed today?',
+];
+
+const MUHASABAH_INTERMEDIATE = [
+  'Did I pray with focus and presence (khushu) today?',
+  'Did I reflect on any ayah I read today?',
+  'Did I act with ihsan (excellence) in my work?',
+  'Am I holding any grudge that I need to let go of?',
+  'Did I prioritize my akhirah goals over dunya distractions?',
+  'Was there a moment I felt closest to Allah today?',
+  'Did I control my anger and respond with gentleness?',
+  'Have I been consistent in my adhkar (morning/evening)?',
+  'Did I check on someone who might need support?',
+  'What habit am I building that will outlast this week?',
+];
+
+function getDayIndex(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const start = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d - start) / (1000 * 60 * 60 * 24));
+}
+
+export function getProgressiveMuhasabah(dateStr, daysLogged) {
+  const dayIndex = getDayIndex(dateStr);
+  if (daysLogged < 14) {
+    return { prompt: MUHASABAH_BEGINNER[dayIndex % MUHASABAH_BEGINNER.length], level: 'beginner' };
+  }
+  if (daysLogged < 42) {
+    return { prompt: MUHASABAH_INTERMEDIATE[dayIndex % MUHASABAH_INTERMEDIATE.length], level: 'intermediate' };
+  }
+  return { prompt: MUHASABAH[dayIndex % MUHASABAH.length], level: 'advanced' };
+}
+
+export function isFriday(dateStr) {
+  return new Date(dateStr + 'T00:00:00').getDay() === 5;
+}
+
+export function isSunnahFastingDay(dateStr) {
+  const day = new Date(dateStr + 'T00:00:00').getDay();
+  return day === 1 || day === 4;
+}
+
+export const FRIDAY_REMINDER = {
+  title: 'Jumu\'ah Mubarak',
+  text: 'Send salawat upon the Prophet, read Surah Al-Kahf, and make dua in the last hour before Maghrib.',
+  verse: '"O you who believe, when the call to prayer is made on Friday, hasten to the remembrance of Allah." -- Quran 62:9',
+};
+
+export const FASTING_REMINDER = {
+  title: 'Sunnah Fasting Day',
+  text: 'The Prophet (peace be upon him) used to fast on Mondays and Thursdays.',
+  source: 'Sunan an-Nasa\'i 2362',
+};

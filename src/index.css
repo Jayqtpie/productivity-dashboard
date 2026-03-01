@@ -302,6 +302,26 @@ textarea { resize: vertical; min-height: 3rem; }
 .on-time-toggle button.yes { border-color: #22C55E; color: #22C55E; background: rgba(34,197,94,0.08); }
 .on-time-toggle button.no { border-color: #EF4444; color: #EF4444; background: rgba(239,68,68,0.08); }
 
+/* Water glass toggle */
+.water-glass {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.25rem;
+  border: 1.5px solid #CBD5E1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background: none;
+  padding: 0;
+}
+.water-glass.filled {
+  background: #3B82F6;
+  border-color: #3B82F6;
+}
+
 /* Habit grid */
 .habit-check {
   appearance: none;

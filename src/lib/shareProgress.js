@@ -9,10 +9,18 @@ export async function shareProgress() {
   const goalsData = data.goals?.[0];
   const goalsSet = goalsData?.goals?.filter(g => g.text?.trim()).length || 0;
 
-  // Total salah across all days
+  // Aggregate stats across all days
   let totalSalah = 0;
+  let totalDeeds = 0;
+  let totalWater = 0;
+  let totalGratitude = 0;
   (data.dailyPages || []).forEach((page) => {
     totalSalah += Object.values(page.salah || {}).filter(s => s.done).length;
+    if (page.goodDeeds) {
+      totalDeeds += Object.values(page.goodDeeds).filter(v => v === true).length;
+    }
+    totalWater += page.waterIntake || 0;
+    totalGratitude += (page.gratitude || []).filter(g => g?.trim()).length;
   });
 
   // Average habits completion
@@ -36,6 +44,9 @@ export async function shareProgress() {
     '—————————————',
     `Days tracked: ${dailyCount}`,
     `Total salah recorded: ${totalSalah}`,
+    `Good deeds logged: ${totalDeeds}`,
+    `Water glasses: ${totalWater}`,
+    `Gratitude entries: ${totalGratitude}`,
     `Habit weeks tracked: ${habitsWeeks}`,
     `Average habit completion: ${avgHabits}%`,
     `Goals set: ${goalsSet}/3`,

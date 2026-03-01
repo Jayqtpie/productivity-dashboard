@@ -3,7 +3,7 @@ import { exportAllData, importAllData, clearAllData, setSetting } from '../lib/d
 import { getLocation, setupLocation, clearLocation } from '../lib/prayerTimes';
 import SectionBar from '../components/SectionBar';
 import Footer from '../components/Footer';
-import { Palette, Upload, Trash2, Share2, Printer, Info, Smartphone, MapPin, HardDriveDownload } from 'lucide-react';
+import { Palette, Upload, Trash2, Share2, Printer, Info, Smartphone, MapPin, HardDriveDownload, FileDown } from 'lucide-react';
 
 const THEMES = [
   { id: 'teal', label: 'Teal', primary: '#1A535C', bg: '#FAF0E6', desc: 'Classic brand' },
@@ -15,6 +15,7 @@ export default function Settings({ theme, onThemeChange }) {
   const [showReset, setShowReset] = useState(false);
   const [importing, setImporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [location, setLocation] = useState(null);
   const [locationLoaded, setLocationLoaded] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
@@ -78,27 +79,20 @@ export default function Settings({ theme, onThemeChange }) {
   };
 
   const handleShare = async () => {
-    const data = await exportAllData();
-    const dailyCount = data.dailyPages?.length || 0;
-    const habitsWeeks = data.habits?.length || 0;
-    const goalsData = data.goals?.[0];
-    const goalsSet = goalsData?.goals?.filter(g => g.text?.trim()).length || 0;
+    const { shareProgress } = await import('../lib/shareProgress');
+    await shareProgress();
+  };
 
-    const text = [
-      'Productivity Dashboard — Progress',
-      `Daily entries: ${dailyCount}`,
-      `Habit weeks tracked: ${habitsWeeks}`,
-      `Goals set: ${goalsSet}/3`,
-      '',
-      'Powered by GuidedBarakah',
-    ].join('\n');
-
-    if (navigator.share) {
-      await navigator.share({ title: 'My Productivity Progress', text });
-    } else {
-      await navigator.clipboard.writeText(text);
-      alert('Progress summary copied to clipboard!');
+  const handleDownloadPdf = async () => {
+    setPdfLoading(true);
+    try {
+      const { generatePdf } = await import('../lib/exportPdf');
+      await generatePdf();
+    } catch (err) {
+      alert('Error generating PDF. Please try again.');
+      console.error(err);
     }
+    setPdfLoading(false);
   };
 
   const handleReset = async () => {
@@ -195,6 +189,13 @@ export default function Settings({ theme, onThemeChange }) {
         <div className="card animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
           <SectionBar variant="primary" icon={<Share2 size={15} />}>Export & Share</SectionBar>
           <div className="card-body space-y-3">
+            <button onClick={handleDownloadPdf} disabled={pdfLoading} className="w-full flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-gray-50 disabled:opacity-60" style={{ border: '1.5px solid #E2E8F0' }}>
+              <FileDown size={18} style={{ color: 'var(--accent)' }} />
+              <div className="text-left">
+                <span className="text-sm font-bold block">{pdfLoading ? 'Generating PDF...' : 'Download PDF'}</span>
+                <span className="text-xs text-[var(--muted)]">Branded PDF export of your entire journey</span>
+              </div>
+            </button>
             <button onClick={() => window.print()} className="w-full flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-gray-50" style={{ border: '1.5px solid #E2E8F0' }}>
               <Printer size={18} style={{ color: 'var(--primary)' }} />
               <div className="text-left">
@@ -277,7 +278,7 @@ export default function Settings({ theme, onThemeChange }) {
               <strong>iPhone/iPad:</strong> Tap the Share button in Safari, then &ldquo;Add to Home Screen.&rdquo;
             </p>
             <p className="text-sm text-[var(--muted)] leading-relaxed mt-2">
-              <strong>Android:</strong> Tap the menu (&vellip;) in Chrome, then &ldquo;Install app&rdquo; or &ldquo;Add to Home screen.&rdquo;
+              <strong>Android:</strong> Tap the menu (⋮) in Chrome, then &ldquo;Install app&rdquo; or &ldquo;Add to Home screen.&rdquo;
             </p>
           </div>
         </div>

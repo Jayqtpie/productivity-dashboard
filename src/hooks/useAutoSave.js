@@ -12,7 +12,8 @@ export function useAutoSave(store, id, defaultValue) {
     let cancelled = false;
     getData(store, id).then((result) => {
       if (!cancelled) {
-        setLocalData(result || (typeof defaultValue === 'function' ? defaultValue() : defaultValue));
+        const defaults = typeof defaultValue === 'function' ? defaultValue() : defaultValue;
+        setLocalData(result ? { ...defaults, ...result } : defaults);
         setLoaded(true);
       }
     });
