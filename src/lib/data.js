@@ -10,6 +10,7 @@ export const HABITS = [
   { id: 'knowledge', label: 'Seek Islamic knowledge' },
   { id: 'kindness', label: 'Act of kindness / good deed' },
   { id: 'sleep', label: 'Sleep early, wake for Fajr' },
+  { id: 'tahajjud', label: 'Prayed Tahajjud' },
 ];
 
 export const DAYS_OF_WEEK = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
